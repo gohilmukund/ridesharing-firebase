@@ -6,7 +6,7 @@ const Base64 = require('js-base64').Base64;
 
 admin.initializeApp(functions.config().firebase);
 const firestore = admin.firestore();
-const AUTHORIZATION = "Basic " + Base64.encode('AccountId:SecretKey');
+const AUTHORIZATION = "Basic " + Base64.encode('u-59twIh1lCyaVPFxMu3Rmy7ddk:i4DpHeGM20uFgi3WCt1mH91ZkI7wI65BA0VSDfIi17xGrCh5pY73WQ');
 
 const DATE_FORMAT = "YYYY-MM-DD[T]HH:mm:ss[Z]";
 
@@ -37,7 +37,7 @@ async function acceptOrder(change, context) {
             updated_at: updatedAt,
             status: "PICKING_UP",
             trip_id: parsedBody["trip_id"]
-        }, {merge: true});
+        }, { merge: true });
     }
 }
 
@@ -55,7 +55,7 @@ async function startRide(change, context) {
             updated_at: updatedAt,
             status: "DROPPING_OFF",
             trip_id: parsedBody["trip_id"]
-        }, {merge: true});
+        }, { merge: true });
     }
 }
 
@@ -70,7 +70,7 @@ async function rejectRide(change, context) {
         updated_at: updatedAt,
         trip_id: null,
         driver: null,
-    }, {merge: true});
+    }, { merge: true });
 }
 
 // updateOrderStatus(require('./testData.json').endRide)
@@ -82,7 +82,7 @@ async function endRide(change, context) {
     const updatedAt = moment().format(DATE_FORMAT);
     return change.after.ref.set({
         updated_at: updatedAt,
-    }, {merge: true});
+    }, { merge: true });
 }
 
 async function createTrip(deviceId, coordinates) {
@@ -139,7 +139,7 @@ async function completeTrip(tripId) {
 
 exports.updateOrderStatus = functions.firestore
     .document('orders/{orderId}')
-    .onUpdate(async (change, context) => {
+    .onUpdate(async(change, context) => {
         console.log("before: " + JSON.stringify(change.before.data()));
         console.log("after: " + JSON.stringify(change.after.data()));
         const beforeStatus = change.before.data().status;
@@ -159,14 +159,14 @@ exports.updateOrderStatus = functions.firestore
 // deleteOrder(require('./testData.json').deleteOrder)
 exports.deleteOrder = functions.firestore
     .document('orders/{orderId}')
-    .onDelete(async (snap, context) => {
+    .onDelete(async(snap, context) => {
         // Get an object representing the document prior to deletion
         const deletedValue = snap.data();
         await completeTrip(deletedValue.trip_id);
     });
 
 // http://localhost:5001/<your project name e.g. uber-for-x-58779>/us-central1/onTripUpdate
-exports.onTripUpdate = functions.https.onRequest(async (req, res) => {
+exports.onTripUpdate = functions.https.onRequest(async(req, res) => {
     const data = JSON.parse(req.rawBody);
     console.log("onTripUpdate:data: " + JSON.stringify(data));
     for (let i = 0; i < data.length; i++) {
